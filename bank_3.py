@@ -1,5 +1,5 @@
 from datetime import datetime
-from abc import ABC, abstractclassmethod, abstractproperty
+from abc import ABC, abstractmethod
 import textwrap
 
 
@@ -14,6 +14,7 @@ class Cliente:
     def adicionar_conta(self, conta):
         self.contas.append(conta)
         
+
 class PessoaFisica(Cliente):
     def __init__(self, nome, data_nascimento, cpf, endereco):
         super().__init__(endereco)
@@ -21,13 +22,14 @@ class PessoaFisica(Cliente):
         self.data_nascimento = data_nascimento
         self.cpf = cpf
 
+
 class Conta:
     def __init__(self, numero, cliente):
-        self.saldo = 0
-        self.numero = numero
-        self.agencia = '0001'
-        self.cliente = cliente
-        self.historico = Historico()
+        self._saldo = 0  # Inicializando o saldo
+        self._numero = numero
+        self._agencia = '0001'
+        self._cliente = cliente
+        self._historico = Historico()
 
     @classmethod
     def nova_conta(cls, cliente, numero):
@@ -55,11 +57,11 @@ class Conta:
     
     
     def sacar(self, valor):
-        saldo = self.saldo
-        excedeu_saldo = valor > saldo 
+        excedeu_saldo = valor > self._saldo 
         
         if excedeu_saldo:
             print('Operação falhou! Você não tem saldo suficiente.')
+            return False
         
         elif valor > 0:
             self._saldo -= valor
@@ -75,14 +77,12 @@ class Conta:
         if valor > 0:
             self._saldo += valor
             print('Depósito realizado com sucesso!')
+            return True
             
         else:
             print('Operação falhou! O valor informado é inválido.')
             return False
         
-        return True
-        
-
 
 class ContaCorrente(Conta):
     def __init__(self, numero, cliente, limite=500, limite_saques=3):
@@ -92,7 +92,7 @@ class ContaCorrente(Conta):
 
     def sacar(self, valor):
         numero_saques = len(
-            [transacao for transacao in self.historico.transacoes if transacao["tipo"] == Saque.__name__]
+            [transacao for transacao in self.historico.transacoes if isinstance(transacao, Saque)]
         )
         
         excedeu_limite = valor > self.limite
@@ -100,14 +100,14 @@ class ContaCorrente(Conta):
         
         if excedeu_limite:
             print('Operação falhou! O valor do saque excede o limite.')
+            return False
             
         elif excedeu_saques:
             print('Operação falhou! Número máximo de saques excedido.')
+            return False
             
         else:
             return super().sacar(valor)
-        
-        return False
     
     def __str__(self):
         return f"""
@@ -136,11 +136,11 @@ class Historico:
         
 class Transacao(ABC):
     @property
-    @abstractproperty
+    @abstractmethod
     def valor(self):
         pass
     
-    @abstractclassmethod
+    @abstractmethod
     def registrar(self, conta):
         pass
     
@@ -151,7 +151,6 @@ class Saque(Transacao):
     @property
     def valor(self):
         return self._valor
-    
     
     def registrar(self, conta):
         sucesso_transacao = conta.sacar(self.valor)
@@ -340,5 +339,5 @@ def main():
             print("Operação inválida, por favor selecione novamente a operação desejada. ")
 
 
-main()
-
+if __name__ == "__main__":
+    main()
