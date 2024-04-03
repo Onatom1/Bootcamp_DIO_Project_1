@@ -130,7 +130,7 @@ class Historico:
             {
                 "tipo": transacao.__class__.__name__,
                 "valor": transacao.valor,
-                "data": datetime.now().strftime("%d-%m-%Y %H:%M:%s"),
+                "data": datetime.now().strftime("%d-%m-%Y %H:%M"),
             }
         )
         
@@ -322,14 +322,14 @@ def main():
         elif opcao == "3":
             exibir_extrato(clientes)
 
-        elif opcao == "4":
+        elif opcao == "6":
             criar_cliente(clientes)
 
-        elif opcao == "5":
+        elif opcao == "4":
             numero_conta = len(contas) + 1
             criar_conta(numero_conta, clientes, contas)
 
-        elif opcao == "6":
+        elif opcao == "5":
             listar_contas(contas)
 
         elif opcao == "7":
